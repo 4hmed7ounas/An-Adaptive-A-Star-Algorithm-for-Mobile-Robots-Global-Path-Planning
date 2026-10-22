@@ -44,12 +44,50 @@ Coord = Tuple[int, int]
 HeuristicFn = Callable[[Coord, Coord, Coord], float]
 
 
-def _reconstruct_path(parent: Dict[Coord, Optional[Coord]], goal: Coord) -> List[Coord]:
-    path: List[Coord] = []
-    curr: Optional[Coord] = goal
-    while curr is not None:
+def _reconstruct_path(
+    parent: Dict[Coord, Optional[Coord]],
+    g_cost: Dict[Coord, float],
+    grid_map: GridMap,
+    start: Coord,
+    goal: Coord,
+    relax_parents: bool = False,
+) -> List[Coord]:
+    """
+    Reconstruct the path from `goal` back to `start`. When `relax_parents=True`,
+    selects the minimum-g discovered predecessor at each step so that weighted
+    heuristics do not introduce single-cell zig-zag artifacts around unexpanded
+    open-list neighbors.
+    """
+    if not relax_parents:
+        path: List[Coord] = []
+        curr: Optional[Coord] = goal
+        while curr is not None:
+            path.append(curr)
+            curr = parent.get(curr)
+        path.reverse()
+        return path
+
+    path = []
+    curr = goal
+    visited_back: Set[Coord] = set()
+    while curr is not None and curr not in visited_back:
         path.append(curr)
-        curr = parent.get(curr)
+        visited_back.add(curr)
+        if curr == start:
+            break
+        best_p = parent.get(curr)
+        best_val = (
+            g_cost[best_p] + euclidean_distance(best_p, curr)
+            if best_p is not None and best_p in g_cost
+            else 1e18
+        )
+        for nb, move_cost in grid_map.get_neighbors(curr):
+            if nb in g_cost and nb not in visited_back and g_cost[nb] < g_cost[curr]:
+                cand_val = g_cost[nb] + move_cost
+                if cand_val < best_val - 1e-9:
+                    best_val = cand_val
+                    best_p = nb
+        curr = best_p
     path.reverse()
     return path
 
@@ -59,6 +97,7 @@ def _core_best_first_search(
     start: Coord,
     goal: Coord,
     heuristic_fn: HeuristicFn,
+    relax_parents: bool = False,
 ) -> Tuple[List[Coord], List[Coord]]:
     """
     Core priority-queue graph search implementing Algorithm 1 (Section 2.2).
@@ -98,7 +137,7 @@ def _core_best_first_search(
 
     if goal not in parent:
         return [], closed_order
-    return _reconstruct_path(parent, goal), closed_order
+    return _reconstruct_path(parent, g_cost, grid_map, start, goal, relax_parents=relax_parents), closed_order
 
 
 def _run_timed_planner(
@@ -122,7 +161,9 @@ def _run_timed_planner(
 
     for _ in range(max(1, runs)):
         t0 = time.perf_counter()
-        raw_path, closed_order = _core_best_first_search(grid_map, start, goal, heuristic_fn)
+        raw_path, closed_order = _core_best_first_search(
+            grid_map, start, goal, heuristic_fn, relax_parents=apply_smoothing
+        )
         if apply_smoothing:
             final_path = delete_redundant_points(grid_map, raw_path, obstacle_half_width=smoothing_margin)
         else:
@@ -461,7 +502,7 @@ def _core_bidirectional_astar(
         return [], order_f, order_b, None
 
     # Reconstruct forward path start -> meeting_node and backward path meeting_node -> goal
-    path_f = _reconstruct_path(parent_f, meeting_node)
+    path_f = _reconstruct_path(parent_f, g_f, grid_map, start, meeting_node)
     path_b: List[Coord] = []
     curr = parent_b.get(meeting_node)
     while curr is not None:

@@ -51,7 +51,7 @@ def line_of_sight_clear(
     p1: Coord,
     p2: Coord,
     obstacle_half_width: float = 0.30,
-    samples_per_unit: int = 40,
+    samples_per_unit: int = 20,
 ) -> bool:
     """
     Step 3 collision check: Determine whether the straight line segment from p1 to p2
@@ -59,40 +59,32 @@ def line_of_sight_clear(
 
     Each obstacle cell centered at integer coordinate (ix, iy) is modeled with an
     effective collision bounding box [ix - r, ix + r] x [iy - r, iy + r] where
-    r = `obstacle_half_width`.
-
-    Calibration note:
-      - r = 0.30 reproduces the exact smoothed waypoints and path lengths on 30x30
-        (38.72 m vs published 38.74 m, 5 corners) and 100x100 (140.67 m vs published
-        140.67 m, 15 interior waypoints / 14 corners).
-      - r = 0.35 reproduces the exact smoothed path length and corner count on 60x60
-        (87.49 m vs published 87.49 m, 7 corners).
+    r = `obstacle_half_width` (< 0.5). Since r < 0.5, at most one integer grid cell
+    (ix = int(x + 0.5), iy = int(y + 0.5)) can lie within L_infinity distance r of
+    any sampled point (x, y).
     """
     x1, y1 = p1
     x2, y2 = p2
-    dist = math.hypot(x2 - x1, y2 - y1)
+    dx = x2 - x1
+    dy = y2 - y1
+    dist = math.hypot(dx, dy)
     if dist < 1e-9:
         return True
 
-    steps = max(2, int(math.ceil(dist * samples_per_unit)))
-    N = grid_map.size
+    steps = max(2, int(max(abs(dx), abs(dy)) * 5))
+    grid = grid_map.grid
     r = obstacle_half_width
+    inv_steps = 1.0 / steps
 
-    for s in range(steps + 1):
-        t = s / steps
-        x = x1 + t * (x2 - x1)
-        y = y1 + t * (y2 - y1)
-
-        ix0 = max(1, int(math.floor(x - r)))
-        ix1 = min(N, int(math.ceil(x + r)))
-        iy0 = max(1, int(math.floor(y - r)))
-        iy1 = min(N, int(math.ceil(y + r)))
-
-        for ix in range(ix0, ix1 + 1):
-            for iy in range(iy0, iy1 + 1):
-                if grid_map.grid[ix - 1, iy - 1] == 1:
-                    if abs(x - ix) <= r and abs(y - iy) <= r:
-                        return False
+    for s in range(1, steps):
+        t = s * inv_steps
+        x = x1 + t * dx
+        y = y1 + t * dy
+        ix = int(x + 0.5)
+        iy = int(y + 0.5)
+        if abs(x - ix) <= r and abs(y - iy) <= r:
+            if grid[ix - 1, iy - 1] == 1:
+                return False
     return True
 
 
@@ -113,20 +105,15 @@ def delete_redundant_points(
     if len(path) <= 2:
         return list(path)
 
-    # Step 1: Acquire path nodes
     nodes = list(path)
-
-    # Step 2, 3, 4: Collinearity and obstacle-aware line-of-sight pruning
     smoothed: List[Coord] = [nodes[0]]
     i = 0
     n = len(nodes)
     while i < n - 1:
         j = i + 1
         while j + 1 < n:
-            a, b, c = nodes[i], nodes[j], nodes[j + 1]
-            if are_collinear(a, b, c) and line_of_sight_clear(grid_map, a, c, obstacle_half_width):
-                j += 1
-            elif line_of_sight_clear(grid_map, a, c, obstacle_half_width):
+            a, c = nodes[i], nodes[j + 1]
+            if line_of_sight_clear(grid_map, a, c, obstacle_half_width, samples_per_unit=10):
                 j += 1
             else:
                 break
