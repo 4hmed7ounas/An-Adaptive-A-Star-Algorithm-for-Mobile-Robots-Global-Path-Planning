@@ -1,0 +1,53 @@
+{
+  "map1_30x30": {
+    "name": "30x30",
+    "size": 30,
+    "description": "Irregular outdoor scene (30 m x 30 m)",
+    "source_image": "page_10_0_Im9.jpg",
+    "obstacle_cells": 248,
+    "free_cells": 652,
+    "obstacle_density_pct": 27.56,
+    "default_start": [
+      2,
+      2
+    ],
+    "default_goal": [
+      28,
+      28
+    ]
+  },
+  "map2_60x60": {
+    "name": "60x60",
+    "size": 60,
+    "description": "Structured indoor maze and corridors scene (60 m x 60 m)",
+    "source_image": "page_10_6_Im10.jpg",
+    "obstacle_cells": 711,
+    "free_cells": 2889,
+    "obstacle_density_pct": 19.75,
+    "default_start": [
+      2,
+      2
+    ],
+    "default_goal": [
+      58,
+      58
+    ]
+  },
+  "map3_100x100": {
+    "name": "100x100",
+    "size": 100,
+    "description": "Large array-like photovoltaic/warehouse scene (100 m x 100 m)",
+    "source_image": "page_10_5_Im11.jpg",
+    "obstacle_cells": 2475,
+    "free_cells": 7525,
+    "obstacle_density_pct": 24.75,
+    "default_start": [
+      2,
+      2
+    ],
+    "default_goal": [
+      99,
+      99
+    ]
+  }
+}
