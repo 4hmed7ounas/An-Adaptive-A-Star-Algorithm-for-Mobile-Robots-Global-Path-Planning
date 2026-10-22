@@ -1,9 +1,9 @@
 Scenario,Algorithm,Pub_Time_s,Rep_Time_s,Diff_Time_s,Pub_Length_m,Rep_Length_m,Diff_Length_m,Pub_Expanded_Nodes,Rep_Expanded_Nodes,Diff_Expanded_Nodes,Pub_Corners_ge_45,Rep_Corners_ge_45,Diff_Corners_ge_45,Strict_Angle_ge_45
-30x30,A*,0.04,0.00088,-0.03912,40.41,40.28,-0.13,130,130,0,9,9,0,9
-30x30,Adaptive estimation function,0.03,0.00112,-0.02888,40.2,40.28,0.08,118,118,0,13,9,-4,9
-30x30,Distance model optimization,0.02,0.00035,-0.01965,41.45,41.46,0.01,45,45,0,9,13,4,13
-30x30,Redundant point deletion,0.02,0.00143,-0.01857,38.74,38.72,-0.02,130,130,0,5,5,0,1
-60x60,A*,0.18,0.00497,-0.17503,92.3,92.08,-0.22,716,716,0,12,10,-2,10
-60x60,Adaptive estimation function,0.09,0.00581,-0.08419,92.05,92.08,0.03,412,691,279,12,10,-2,10
-60x60,Distance model optimization,0.12,0.00342,-0.11658,91.08,92.08,1.0,691,412,-279,10,9,-1,9
-60x60,Redundant point deletion,0.12,0.00763,-0.11237,87.49,87.49,-0.0,691,716,25,7,7,0,1
+30x30,A*,0.04,0.00096,-0.03904,40.41,40.28,-0.13,130,130,0,9,9,0,9
+30x30,Adaptive estimation function,0.03,0.00098,-0.02902,40.2,40.28,0.08,118,118,0,13,9,-4,9
+30x30,Distance model optimization,0.02,0.00034,-0.01966,41.45,41.46,0.01,45,45,0,9,13,4,13
+30x30,Redundant point deletion,0.02,0.00109,-0.01891,38.74,38.72,-0.02,130,130,0,5,5,0,1
+60x60,A*,0.18,0.00522,-0.17478,92.3,92.08,-0.22,716,716,0,12,10,-2,10
+60x60,Adaptive estimation function,0.09,0.0061,-0.0839,92.05,92.08,0.03,412,691,279,12,10,-2,10
+60x60,Distance model optimization,0.12,0.0034,-0.1166,91.08,92.08,1.0,691,412,-279,10,9,-1,9
+60x60,Redundant point deletion,0.12,0.00574,-0.11426,87.49,87.49,-0.0,691,716,25,7,7,0,1

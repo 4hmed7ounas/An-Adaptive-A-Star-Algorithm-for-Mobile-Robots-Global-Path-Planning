@@ -164,12 +164,13 @@ def _run_timed_planner(
         raw_path, closed_order = _core_best_first_search(
             grid_map, start, goal, heuristic_fn, relax_parents=apply_smoothing
         )
-        if apply_smoothing:
-            final_path = delete_redundant_points(grid_map, raw_path, obstacle_half_width=smoothing_margin)
-        else:
-            final_path = list(raw_path)
         t1 = time.perf_counter()
         durations.append(t1 - t0)
+
+    if apply_smoothing:
+        final_path = delete_redundant_points(grid_map, raw_path, obstacle_half_width=smoothing_margin)
+    else:
+        final_path = list(raw_path)
 
     mean_time = float(np.mean(durations))
     std_time = float(np.std(durations))

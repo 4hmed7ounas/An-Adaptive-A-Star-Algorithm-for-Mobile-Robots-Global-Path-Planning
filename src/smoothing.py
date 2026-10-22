@@ -71,7 +71,7 @@ def line_of_sight_clear(
     if dist < 1e-9:
         return True
 
-    steps = max(2, int(max(abs(dx), abs(dy)) * 5))
+    steps = max(2, int(math.ceil(dist * samples_per_unit)))
     grid = grid_map.grid
     r = obstacle_half_width
     inv_steps = 1.0 / steps
@@ -113,7 +113,7 @@ def delete_redundant_points(
         j = i + 1
         while j + 1 < n:
             a, c = nodes[i], nodes[j + 1]
-            if line_of_sight_clear(grid_map, a, c, obstacle_half_width, samples_per_unit=10):
+            if line_of_sight_clear(grid_map, a, c, obstacle_half_width, samples_per_unit=20):
                 j += 1
             else:
                 break

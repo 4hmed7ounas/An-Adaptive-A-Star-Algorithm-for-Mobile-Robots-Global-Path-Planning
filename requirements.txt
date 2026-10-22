@@ -1,0 +1,6 @@
+numpy>=1.26.0
+matplotlib>=3.8.0
+Pillow>=10.0.0
+reportlab>=4.0.0
+scipy>=1.11.0
+pandas>=2.1.0
